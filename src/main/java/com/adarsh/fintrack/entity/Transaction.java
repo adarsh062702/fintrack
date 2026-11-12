@@ -38,16 +38,16 @@ public class Transaction {
     @Column(name = "type", nullable = false, length = 20)
     private String type;
 
-    @Column(name = "amount", nullable = false, precision = 12, scale = 2)
+    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "description", length = 500)
+    @Column(name = "description", length = 255)
     private String description;
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
-    @Column(name = "payment_method", length = 50)
+    @Column(name = "payment_method", nullable = false, length = 30)
     private String paymentMethod;
 
     @CreationTimestamp

@@ -25,7 +25,7 @@ public class CreateTransactionRequest {
 
     @NotNull
     @DecimalMin("0.01")
-    @Digits(integer = 10, fraction = 2)
+    @Digits(integer = 13, fraction = 2)
     private BigDecimal amount;
 
     @Size(max = 500)

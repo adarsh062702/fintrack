@@ -62,7 +62,6 @@ class TransactionServiceTest {
         );
 
         user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
 
         category = mock(Category.class);
         when(category.getUser()).thenReturn(user);
@@ -172,5 +171,39 @@ class TransactionServiceTest {
 
         verify(transactionRepository, never())
                 .save(any(Transaction.class));
+    }
+
+    @Test
+    void createTransaction_ShouldSucceed_WhenCategoryIsGlobal() {
+
+        when(category.getUser()).thenReturn(null);
+        when(category.getId()).thenReturn(10L);
+        when(category.getName()).thenReturn("Food");
+        when(category.getType()).thenReturn("EXPENSE");
+        when(category.isActive()).thenReturn(true);
+
+        when(categoryRepository.findById(10L))
+                .thenReturn(Optional.of(category));
+
+        when(transactionRepository.save(any(Transaction.class)))
+                .thenAnswer(invocation -> {
+                    Transaction transaction =
+                            invocation.getArgument(0);
+
+                    transaction.setId(101L);
+
+                    return transaction;
+                });
+
+        TransactionResponse response =
+                transactionService.createTransaction(
+                        createRequest("EXPENSE")
+                );
+
+        assertNotNull(response);
+        assertEquals(101L, response.id());
+        assertEquals("Food", response.categoryName());
+
+        verify(transactionRepository).save(any(Transaction.class));
     }
 }

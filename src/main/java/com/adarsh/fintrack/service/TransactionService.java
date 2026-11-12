@@ -59,8 +59,8 @@ public class TransactionService {
                         new ResourceNotFoundException(
                                 "Category not found with id: " + categoryId));
 
-        if (category.getUser() == null
-                || !category.getUser().getId().equals(user.getId())) {
+        if (category.getUser() != null
+                && !category.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException(
                     "You cannot use another user's category");
         }

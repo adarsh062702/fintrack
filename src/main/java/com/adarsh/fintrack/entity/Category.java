@@ -30,8 +30,8 @@ public class Category {
     @Column(name = "type", nullable = false, length = 20)
     private String type;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(name = "is_active", nullable = false)

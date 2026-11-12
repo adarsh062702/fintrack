@@ -11,4 +11,5 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findByUserId(Long userId);
+    List<Category> findByUser_IdOrUserIsNull(Long userId);
 }

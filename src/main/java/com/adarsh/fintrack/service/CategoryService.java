@@ -93,7 +93,7 @@ public class CategoryService {
     public List<CategoryResponse> getAllCategories() {
         User user = getAuthenticatedUser();
 
-        return categoryRepository.findByUserId(user.getId())
+        return categoryRepository.findByUser_IdOrUserIsNull(user.getId())
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -132,7 +132,8 @@ public class CategoryService {
                         new ResourceNotFoundException(
                                 "Category not found with id: " + id));
 
-        if (!category.getUser().getId().equals(user.getId())) {
+        if (category.getUser() == null
+                || !category.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException(
                     "You cannot modify another user's category");
         }
@@ -152,7 +153,8 @@ public class CategoryService {
                         new ResourceNotFoundException(
                                 "Category not found with id: " + id));
 
-        if (!category.getUser().getId().equals(user.getId())) {
+        if (category.getUser() == null
+                || !category.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException(
                     "You cannot delete another user's category");
         }

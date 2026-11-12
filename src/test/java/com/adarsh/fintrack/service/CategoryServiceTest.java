@@ -84,25 +84,32 @@ class CategoryServiceTest {
     }
 
     @Test
-    void getAllCategories_ShouldReturnUserCategories() {
+    void getAllCategories_ShouldReturnGlobalAndUserCategories() {
         authenticate();
         when(user.getId()).thenReturn(1L);
 
-        Category category = createMockCategory(
-                10L, "Food", "EXPENSE", true
+        Category globalCategory = createMockCategory(
+                1L, "Food", "EXPENSE", true
         );
 
-        when(categoryRepository.findByUserId(1L))
-                .thenReturn(List.of(category));
+        Category personalCategory = createMockCategory(
+                10L, "Salary", "INCOME", true
+        );
+
+        when(categoryRepository.findByUser_IdOrUserIsNull(1L))
+                .thenReturn(List.of(globalCategory, personalCategory));
 
         List<CategoryResponse> response =
                 categoryService.getAllCategories();
 
-        assertEquals(1, response.size());
-        assertEquals(10L, response.get(0).id());
+        assertEquals(2, response.size());
         assertEquals("Food", response.get(0).name());
+        assertEquals("Salary", response.get(1).name());
         assertEquals("EXPENSE", response.get(0).type());
-        assertTrue(response.get(0).active());
+        assertEquals("INCOME", response.get(1).type());
+
+        verify(categoryRepository)
+                .findByUser_IdOrUserIsNull(1L);
     }
 
     @Test
@@ -295,6 +302,29 @@ class CategoryServiceTest {
     }
 
     @Test
+    void updateCategory_ShouldFail_WhenCategoryIsGlobal() {
+        authenticate();
+
+        Category category = mock(Category.class);
+
+        when(categoryRepository.findById(10L))
+                .thenReturn(Optional.of(category));
+
+        when(category.getUser()).thenReturn(null);
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> categoryService.updateCategory(
+                        10L,
+                        new CategoryRequest("Food Updated", "EXPENSE")
+                )
+        );
+
+        verify(categoryRepository, never())
+                .save(any(Category.class));
+    }
+
+    @Test
     void deleteCategory_ShouldSucceed_WhenUserOwnsCategory() {
         authenticate();
 
@@ -345,6 +375,26 @@ class CategoryServiceTest {
 
         when(category.getUser()).thenReturn(owner);
         when(owner.getId()).thenReturn(2L);
+
+        assertThrows(
+                AccessDeniedException.class,
+                () -> categoryService.deleteCategory(10L)
+        );
+
+        verify(categoryRepository, never())
+                .delete(any(Category.class));
+    }
+
+    @Test
+    void deleteCategory_ShouldFail_WhenCategoryIsGlobal() {
+        authenticate();
+
+        Category category = mock(Category.class);
+
+        when(categoryRepository.findById(10L))
+                .thenReturn(Optional.of(category));
+
+        when(category.getUser()).thenReturn(null);
 
         assertThrows(
                 AccessDeniedException.class,
