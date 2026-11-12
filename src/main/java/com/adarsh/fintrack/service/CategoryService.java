@@ -157,8 +157,7 @@ public class CategoryService {
                     "You cannot delete another user's category");
         }
 
-        if (categoryRepository.existsById(id)) {
-            categoryRepository.delete(category);
-        }
+        categoryRepository.delete(category);
+
     }
 }
